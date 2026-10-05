@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>JJ Transport & Towing — Tow Authorization</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#111;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+.container{
+  max-width:720px;
+  margin:auto;
+  padding:18px;
+}
+.header{
+  text-align:center;
+  padding:10px 0 20px;
+}
+.logo{
+  font-size:28px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+.subtitle{
+  color:#aaa;
+  margin-top:5px;
+}
+.card{
+  background:#1b1b1b;
+  border:1px solid #333;
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:16px;
+}
+h2{
+  font-size:20px;
+  margin:0 0 15px;
+}
+h3{
+  margin:0 0 10px;
+  font-size:16px;
+}
+label{
+  display:block;
+  font-size:13px;
+  color:#bbb;
+  margin:12px 0 5px;
+}
+input,textarea,select{
+  width:100%;
+  background:#0d0d0d;
+  color:#fff;
+  border:1px solid #444;
+  border-radius:9px;
+  padding:13px;
+  font-size:16px;
+}
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+button{
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:15px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+.primary{
+  background:#fff;
+  color:#000;
+}
+.secondary{
+  background:#292929;
+  color:#fff;
+  border:1px solid #444;
+}
+.danger{
+  background:#5b1717;
+  color:#fff;
+}
+button:disabled{
+  opacity:.5;
+}
+.small{
+  font-size:12px;
+  color:#999;
+  line-height:1.5;
+}
+.status{
+  padding:12px;
+  border-radius:9px;
+  background:#222;
+  margin-bottom:15px;
+  display:none;
+}
+.photo-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.photo-box{
+  border:1px dashed #555;
+  border-radius:10px;
+  padding:12px;
+  text-align:center;
+  background:#111;
+}
+.photo-box img{
+  width:100%;
+  border-radius:8px;
+  margin-top:8px;
+}
+.photo-label{
+  font-weight:bold;
+  margin-bottom:8px;
+}
+.signature-wrap{
+  background:#fff;
+  border-radius:10px;
+  overflow:hidden;
+}
+canvas{
+  display:block;
+  width:100%;
+  height:200px;
+  touch-action:none;
+}
+.signature-actions{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+.signature-actions button{
+  flex:1;
+}
+.notice{
+  background:#252525;
+  border-left:4px solid #fff;
+  padding:12px;
+  border-radius:5px;
+  color:#ddd;
+  font-size:13px;
+  line-height:1.5;
+}
+.success{
+  text-align:center;
+  padding:35px 15px;
+}
+.success-icon{
+  font-size:55px;
+}
+.hidden{
+  display:none!important;
+}
+.link-box{
+  word-break:break-all;
+  background:#000;
+  border:1px solid #444;
+  padding:12px;
+  border-radius:8px;
+  font-size:13px;
+}
+@media(max-width:520px){
+  .row{
+    grid-template-columns:1fr;
+  }
+  .photo-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="logo">JJ TRANSPORT & TOWING</div>
+    <div class="subtitle">Tow Authorization</div>
+  </div>
+
+  <div id="status" class="status"></div>
+
+  <!-- =====================================================
+       START / NEW TOW
+       ===================================================== -->
+
+  <div id="startScreen" class="card">
+    <h2>New Tow Authorization</h2>
+
+    <p class="small">
+      Complete the information below. The customer will review
+      the authorization, provide vehicle information and photos,
+      then electronically sign.
+    </p>
+
+    <button class="primary" onclick="startNewTow()">
+      Start New Tow
+    </button>
+  </div>
+
+  <!-- =====================================================
+       FORM
+       ===================================================== -->
+
+  <div id="formScreen" class="hidden">
+
+    <!-- CUSTOMER -->
+    <div class="card">
+      <h2>1. Customer / Authorized Person</h2>
+
+      <label>Full Name *</label>
+      <input id="customer_name" autocomplete="name">
+
+      <label>Phone *</label>
+      <input id="customer_phone" type="tel" autocomplete="tel">
+
+      <label>Email</label>
+      <input id="customer_email" type="email" autocomplete="email">
+
+      <label>Email for Customer Copy</label>
+      <input id="customer_copy_email" type="email">
+
+    </div>
+
+    <!-- TOW -->
+    <div class="card">
+      <h2>2. Tow Information</h2>
+
+      <label>Pickup Location *</label>
+      <textarea id="pickup_location"></textarea>
+
+      <label>Destination / Drop-Off *</label>
+      <textarea id="destination_location"></textarea>
+
+      <label>Reason for Tow</label>
+      <select id="tow_reason">
+        <option value="">Select</option>
+        <option>Breakdown</option>
+        <option>Accident</option>
+        <option>Flat Tire</option>
+        <option>Mechanical Issue</option>
+        <option>Police / Impound</option>
+        <option>Private Property Tow</option>
+        <option>Transport</option>
+        <option>Other</option>
+      </select>
+
+      <label>Additional Instructions / Notes</label>
+      <textarea id="notes"></textarea>
+    </div>
+
+    <!-- VEHICLE -->
+    <div class="card">
+      <h2>3. Vehicle Information</h2>
+
+      <div class="row">
+        <div>
+          <label>Year</label>
+          <input id="vehicle_year">
+        </div>
+
+        <div>
+          <label>Color</label>
+          <input id="vehicle_color">
+        </div>
+      </div>
+
+      <label>Make</label>
+      <input id="vehicle_make">
+
+      <label>Model</label>
+      <input id="vehicle_model">
+
+      <label>VIN</label>
+      <input id="vehicle_vin">
+
+      <label>License Plate</label>
+      <input id="vehicle_plate">
+
+      <label>Odometer</label>
+      <input id="odometer" type="number">
+
+      <label>Keys / Property</label>
+      <textarea id="keys_property"
+        placeholder="Keys, personal property, etc."></textarea>
+
+      <label>Existing Damage / Vehicle Condition</label>
+      <textarea id="existing_damage"
+        placeholder="Describe any existing damage before towing."></textarea>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="card">
+      <h2>4. Vehicle Photos</h2>
+
+      <div class="notice">
+        Take clear photos of the vehicle before the tow whenever
+        possible. These photos become part of the tow record.
+      </div>
+
+      <br>
+
+      <div class="photo-grid">
+
+        <div class="photo-box">
+          <div class="photo-label">Front</div>
+          <input type="file"
+                 accept="image/*"
+                 capture="environment"
+                 onchange="uploadPhoto(this,'Front')">
+          <div id="photos-Front"></div>
+        </div>
+
+        <div class="photo-box">
+          <div class="photo-label">Rear</div>
+          <input type="file"
+                 accept="image/*"
+                 capture="environment"
+                 onchange="uploadPhoto(this,'Rear')">
+          <div id="photos-Rear"></div>
+        </div>
+
+        <div class="photo-box">
+          <div class="photo-label">Driver Side</div>
+          <input type="file"
+                 accept="image/*"
+                 capture="environment"
+                 onchange="uploadPhoto(this,'Driver Side')">
+          <div id="photos-DriverSide"></div>
+        </div>
+
+        <div class="photo-box">
+          <div class="photo-label">Passenger Side</div>
+          <input type="file"
+                 accept="image/*"
+                 capture="environment"
+                 onchange="uploadPhoto(this,'Passenger Side')">
+          <div id="photos-PassengerSide"></div>
+        </div>
+
+        <div class="photo-box">
+          <div class="photo-label">Roof</div>
+          <input type="file"
+                 accept="image/*"
+                 capture="environment"
+                 onchange="uploadPhoto(this,'Roof')">
+          <div id="photos-Roof"></div>
+        </div>
+
+        <div class="photo-box">
+          <div class="photo-label">Interior</div>
+          <input type="file"
+                 accept="image/*"
+                 capture="environment"
+                 onchange="uploadPhoto(this,'Interior')">
+          <div id="photos-Interior"></div>
+        </div>
+
+        <div class="photo-box">
+          <div class="photo-label">Wheels / Tires</div>
+          <input type="file"
+                 accept="image/*"
+                 capture="environment"
+                 onchange="uploadPhoto(this,'Wheels Tires')">
+          <div id="photos-WheelsTires"></div>
+        </div>
+
+        <div class="photo-box">
+          <div class="photo-label">Additional Damage</div>
+          <input type="file"
+                 accept="image/*"
+                 capture="environment"
+                 multiple
+                 onchange="uploadMultiplePhotos(this,'Additional Damage')">
+          <div id="photos-AdditionalDamage"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHARGES -->
+    <div class="card">
+      <h2>5. Charges</h2>
+
+      <div class="row">
+        <div>
+          <label>Tow Charge</label>
+          <input id="tow_charge" type="number" step="0.01">
+        </div>
+
+        <div>
+          <label>Storage</label>
+          <input id="storage_charge" type="number" step="0.01">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Other Charges</label>
+          <input id="other_charge" type="number" step="0.01">
+        </div>
+
+        <div>
+          <label>Final / Estimated Total</label>
+          <input id="total_charge" type="number" step="0.01">
+        </div>
+      </div>
+
+      <label>Charge Notes</label>
+      <textarea id="charge_notes"></textarea>
+    </div>
+
+    <!-- ACKNOWLEDGMENT -->
+    <div class="card">
+      <h2>6. Authorization & Acknowledgment</h2>
+
+      <div class="notice">
+        I authorize JJ Transport & Towing LLC to tow and/or transport
+        the vehicle described above. I certify that the information
+        provided is accurate to the best of my knowledge. I acknowledge
+        the vehicle condition and photographs documented as part of
+        this authorization and agree to the applicable towing and
+        storage charges.
+      </div>
+
+      <br>
+
+      <label>
+        <input id="acknowledgment"
+               type="checkbox"
+               style="width:auto;margin-right:8px;">
+        I have read and agree to the authorization above.
+      </label>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="card">
+      <h2>7. Electronic Signature</h2>
+
+      <p class="small">
+        Sign below with your finger or stylus.
+      </p>
+
+      <div class="signature-wrap">
+        <canvas id="signatureCanvas"></canvas>
+      </div>
+
+      <div class="signature-actions">
+        <button class="secondary" onclick="clearSignature()">
+          Clear
+        </button>
+      </div>
+
+      <br>
+
+      <button id="submitButton"
+              class="primary"
+              onclick="submitAuthorization()">
+        Sign & Submit Authorization
+      </button>
+    </div>
+
+  </div>
+
+  <!-- =====================================================
+       SUCCESS
+       ===================================================== -->
+
+  <div id="successScreen" class="card hidden">
+
+    <div class="success">
+
+      <div class="success-icon">✓</div>
+
+      <h2>Authorization Completed</h2>
+
+      <p>
+        Your tow authorization has been successfully submitted.
+      </p>
+
+      <p class="small">
+        JJ Transport & Towing LLC has received the completed record.
+      </p>
+
+      <button class="secondary"
+              onclick="window.print()">
+        Print / Save Copy
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- =====================================================
+       INTERNAL LINK
+       ===================================================== -->
+
+  <div id="linkScreen" class="card hidden">
+
+    <h2>Customer Link</h2>
+
+    <p class="small">
+      Send this link to the customer. They can open it on their
+      phone and complete the authorization.
+    </p>
+
+    <div id="customerLink" class="link-box"></div>
+
+    <br>
+
+    <button class="primary" onclick="copyCustomerLink()">
+      Copy Customer Link
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* ==========================================================
+   CONFIGURATION
+   ========================================================== */
+
+const SUPABASE_URL =
+  "https://yoqsjyfuglzymwupzpgg.supabase.co";
+
+/*
+ * We will put your Supabase PUBLISHABLE / ANON key here
+ * after this page is saved.
+ */
+const SUPABASE_ANON_KEY =
+  "sb_publishable_wQE8Iz2QJiUWaCHgTMVr-Q_x1xYh4dw";
+
+const FUNCTION_URL =
+  SUPABASE_URL + "/functions/v1/tow-sign";
+
+let accessToken = null;
+let authorization = null;
+let uploadedPhotos = [];
+
+
+/* ==========================================================
+   BASIC HELPERS
+   ========================================================== */
+
+function showStatus(message, error=false){
+  const box = document.getElementById("status");
+
+  box.textContent = message;
+  box.style.display = "block";
+
+  if(error){
+    box.style.border = "1px solid #8b2b2b";
+  }else{
+    box.style.border = "1px solid #444";
+  }
+}
+
+function hideStatus(){
+  document.getElementById("status").style.display = "none";
+}
+
+function value(id){
+  return document.getElementById(id)?.value || "";
+}
+
+
+/* ==========================================================
+   START NEW TOW
+   ========================================================== */
+
+async function startNewTow(){
+
+  if(SUPABASE_ANON_KEY.includes("PASTE_")){
+    showStatus(
+      "The Supabase publishable key still needs to be added.",
+      true
+    );
+    return;
+  }
+
+  showStatus("Creating new tow authorization...");
+
+  try{
+
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/tow_authorizations",
+      {
+        method:"POST",
+        headers:{
+          "apikey":SUPABASE_ANON_KEY,
+          "Authorization":
+            "Bearer " + SUPABASE_ANON_KEY,
+          "Content-Type":"application/json",
+          "Prefer":"return=representation"
+        },
+        body:JSON.stringify({
+          status:"draft"
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if(!response.ok){
+      throw new Error(
+        data?.message ||
+        data?.error_description ||
+        "Could not create authorization."
+      );
+    }
+
+    authorization = data[0];
+
+    accessToken = authorization.access_token;
+
+    const link =
+      window.location.origin +
+      window.location.pathname +
+      "?token=" +
+      encodeURIComponent(accessToken);
+
+    document.getElementById("customerLink").textContent = link;
+
+    document.getElementById("linkScreen")
+      .classList.remove("hidden");
+
+    document.getElementById("startScreen")
+      .classList.add("hidden");
+
+    document.getElementById("formScreen")
+      .classList.remove("hidden");
+
+    hideStatus();
+
+  }catch(error){
+
+    showStatus(
+      error.message || "Unable to create tow.",
+      true
+    );
+
+  }
+}
+
+
+/* ==========================================================
+   LOAD EXISTING AUTHORIZATION
+   ========================================================== */
+
+async function loadAuthorization(){
+
+  const params =
+    new URLSearchParams(window.location.search);
+
+  accessToken = params.get("token");
+
+  if(!accessToken){
+    return;
+  }
+
+  document.getElementById("startScreen")
+    .classList.add("hidden");
+
+  showStatus("Loading tow authorization...");
+
+  try{
+
+    const response = await fetch(
+      FUNCTION_URL +
+      "?token=" +
+      encodeURIComponent(accessToken)
+    );
+
+    const data = await response.json();
+
+    if(!response.ok){
+      throw new Error(
+        data?.error ||
+        "Authorization could not be loaded."
+      );
+    }
+
+    authorization = data;
+
+    uploadedPhotos =
+      Array.isArray(data.photos)
+        ? data.photos
+        : [];
+
+    populateForm(data);
+
+    document.getElementById("formScreen")
+      .classList.remove("hidden");
+
+    renderExistingPhotos();
+
+    hideStatus();
+
+  }catch(error){
+
+    showStatus(
+      error.message ||
+      "Unable to load authorization.",
+      true
+    );
+
+  }
+}
+
+
+/* ==========================================================
+   POPULATE FORM
+   ========================================================== */
+
+function populateForm(data){
+
+  const fields = [
+    "customer_name",
+    "customer_phone",
+    "customer_email",
+    "customer_copy_email",
+    "pickup_location",
+    "destination_location",
+    "tow_reason",
+    "notes",
+    "vehicle_year",
+    "vehicle_make",
+    "vehicle_model",
+    "vehicle_color",
+    "vehicle_vin",
+    "vehicle_plate"
+  ];
+
+  fields.forEach(id=>{
+    if(document.getElementById(id)){
+      document.getElementById(id).value =
+        data[id] || "";
+    }
+  });
+}
+
+
+/* ==========================================================
+   PHOTO UPLOAD
+   ========================================================== */
+
+async function uploadPhoto(input,label){
+
+  if(!input.files || !input.files[0]){
+    return;
+  }
+
+  await uploadFile(input.files[0],label,input);
+
+}
+
+
+async function uploadMultiplePhotos(input,label){
+
+  if(!input.files){
+    return;
+  }
+
+  for(const file of input.files){
+    await uploadFile(file,label,input);
+  }
+
+}
+
+
+async function uploadFile(file,label,input){
+
+  if(!accessToken){
+    showStatus(
+      "No authorization link is active.",
+      true
+    );
+    return;
+  }
+
+  showStatus(
+    "Uploading " + label + " photo..."
+  );
+
+  try{
+
+    /* Get temporary upload permission */
+
+    const uploadInfoResponse =
+      await fetch(
+        FUNCTION_URL +
+        "?token=" +
+        encodeURIComponent(accessToken),
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            action:"create-photo-upload",
+            filename:file.name,
+            contentType:file.type
+          })
+        }
+      );
+
+    const uploadInfo =
+      await uploadInfoResponse.json();
+
+    if(!uploadInfoResponse.ok){
+      throw new Error(
+        uploadInfo?.error ||
+        "Could not prepare photo upload."
+      );
+    }
+
+    /* Upload directly to private bucket */
+
+    const uploadResponse =
+      await fetch(
+        SUPABASE_URL +
+        "/storage/v1/object/upload/sign/" +
+        encodeURIComponent(uploadInfo.path) +
+        "?token=" +
+        encodeURIComponent(uploadInfo.token),
+        {
+          method:"PUT",
+          headers:{
+            "Content-Type":
+              file.type || "image/jpeg"
+          },
+          body:file
+        }
+      );
+
+    if(!uploadResponse.ok){
+
+      const uploadText =
+        await uploadResponse.text();
+
+      throw new Error(
+        uploadText ||
+        "Photo upload failed."
+      );
+    }
+
+    /* Register photo */
+
+    const registerResponse =
+      await fetch(
+        FUNCTION_URL +
+        "?token=" +
+        encodeURIComponent(accessToken),
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            action:"register-photo",
+            path:uploadInfo.path,
+            label:label
+          })
+        }
+      );
+
+    const registered =
+      await registerResponse.json();
+
+    if(!registerResponse.ok){
+      throw new Error(
+        registered?.error ||
+        "Could not register photo."
+      );
+    }
+
+    uploadedPhotos =
+      Array.isArray(registered.photos)
+        ? registered.photos
+        : uploadedPhotos;
+
+    renderExistingPhotos();
+
+    showStatus(
+      label + " photo uploaded successfully."
+    );
+
+    if(input){
+      input.value = "";
+    }
+
+  }catch(error){
+
+    showStatus(
+      error.message ||
+      "Photo upload failed.",
+      true
+    );
+
+  }
+}
+
+
+/* ==========================================================
+   DISPLAY PHOTOS
+   ========================================================== */
+
+function safePhotoId(label){
+
+  return label
+    .replace(/[^a-z0-9]/gi,"");
+}
+
+
+function renderExistingPhotos(){
+
+  document.querySelectorAll(
+    '[id^="photos-"]'
+  ).forEach(el=>{
+    el.innerHTML = "";
+  });
+
+  uploadedPhotos.forEach(photo=>{
+
+    const target =
+      document.getElementById(
+        "photos-" +
+        safePhotoId(photo.label)
+      );
+
+    if(!target){
+      return;
+    }
+
+    const wrapper =
+      document.createElement("div");
+
+    const img =
+      document.createElement("img");
+
+    if(photo.url){
+      img.src = photo.url;
+    }else{
+      img.alt = "Uploaded photo";
+    }
+
+    wrapper.appendChild(img);
+
+    target.appendChild(wrapper);
+
+  });
+}
+
+
+/* ==========================================================
+   SIGNATURE PAD
+   ========================================================== */
+
+const canvas =
+  document.getElementById("signatureCanvas");
+
+const ctx =
+  canvas.getContext("2d");
+
+let drawing = false;
+
+function resizeCanvas(){
+
+  const ratio =
+    Math.max(window.devicePixelRatio || 1,1);
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+  canvas.width =
+    rect.width * ratio;
+
+  canvas.height =
+    rect.height * ratio;
+
+  ctx.scale(ratio,ratio);
+
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+}
+
+function pointerPosition(e){
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+  return {
+    x:e.clientX - rect.left,
+    y:e.clientY - rect.top
+  };
+}
+
+canvas.addEventListener(
+  "pointerdown",
+  e=>{
+    drawing=true;
+
+    const p =
+      pointerPosition(e);
+
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+
+    canvas.setPointerCapture(e.pointerId);
+  }
+);
+
+canvas.addEventListener(
+  "pointermove",
+  e=>{
+
+    if(!drawing){
+      return;
+    }
+
+    const p =
+      pointerPosition(e);
+
+    ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+  }
+);
+
+canvas.addEventListener(
+  "pointerup",
+  ()=>{
+    drawing=false;
+  }
+);
+
+canvas.addEventListener(
+  "pointercancel",
+  ()=>{
+    drawing=false;
+  }
+);
+
+function clearSignature(){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+}
+
+
+/* ==========================================================
+   SAVE AUTHORIZATION
+   ========================================================== */
+
+async function submitAuthorization(){
+
+  if(!accessToken){
+    showStatus(
+      "No authorization token found.",
+      true
+    );
+    return;
+  }
+
+  if(!value("customer_name")){
+    showStatus(
+      "Please enter the customer's name.",
+      true
+    );
+    return;
+  }
+
+  if(!value("customer_phone")){
+    showStatus(
+      "Please enter the customer's phone number.",
+      true
+    );
+    return;
+  }
+
+  if(!value("pickup_location")){
+    showStatus(
+      "Please enter the pickup location.",
+      true
+    );
+    return;
+  }
+
+  if(!value("destination_location")){
+    showStatus(
+      "Please enter the destination.",
+      true
+    );
+    return;
+  }
+
+  if(!document.getElementById("acknowledgment").checked){
+
+    showStatus(
+      "The customer must agree to the authorization.",
+      true
+    );
+
+    return;
+  }
+
+  const signature =
+    canvas.toDataURL("image/png");
+
+  const button =
+    document.getElementById("submitButton");
+
+  button.disabled=true;
+  button.textContent="Submitting...";
+
+  showStatus(
+    "Submitting authorization..."
+  );
+
+  try{
+
+    const body = {
+
+      customer_name:
+        value("customer_name"),
+
+      customer_phone:
+        value("customer_phone"),
+
+      customer_email:
+        value("customer_email"),
+
+      customer_copy_email:
+        value("customer_copy_email"),
+
+      pickup_location:
+        value("pickup_location"),
+
+      destination_location:
+        value("destination_location"),
+
+      tow_reason:
+        value("tow_reason"),
+
+      notes:
+        value("notes"),
+
+      vehicle_year:
+        value("vehicle_year"),
+
+      vehicle_make:
+        value("vehicle_make"),
+
+      vehicle_model:
+        value("vehicle_model"),
+
+      vehicle_color:
+        value("vehicle_color"),
+
+      vehicle_vin:
+        value("vehicle_vin"),
+
+      vehicle_plate:
+        value("vehicle_plate"),
+
+      authorization_signature:
+        signature,
+
+      signed_at:
+        new Date().toISOString(),
+
+      status:
+        "signed"
+    };
+
+    const response =
+      await fetch(
+        FUNCTION_URL +
+        "?token=" +
+        encodeURIComponent(accessToken),
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify(body)
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if(!response.ok){
+      throw new Error(
+        result?.error ||
+        "Could not save authorization."
+      );
+    }
+
+    document.getElementById("formScreen")
+      .classList.add("hidden");
+
+    document.getElementById("linkScreen")
+      .classList.add("hidden");
+
+    document.getElementById("successScreen")
+      .classList.remove("hidden");
+
+    hideStatus();
+
+  }catch(error){
+
+    button.disabled=false;
+    button.textContent =
+      "Sign & Submit Authorization";
+
+    showStatus(
+      error.message ||
+      "Submission failed.",
+      true
+    );
+
+  }
+}
+
+
+/* ==========================================================
+   COPY CUSTOMER LINK
+   ========================================================== */
+
+async function copyCustomerLink(){
+
+  const link =
+    document.getElementById(
+      "customerLink"
+    ).textContent;
+
+  try{
+
+    await navigator.clipboard.writeText(link);
+
+    showStatus(
+      "Customer link copied."
+    );
+
+  }catch(error){
+
+    showStatus(
+      "Unable to copy automatically. Press and hold the link to copy it.",
+      true
+    );
+
+  }
+}
+
+
+/* ==========================================================
+   STARTUP
+   ========================================================== */
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+window.addEventListener(
+  "load",
+  ()=>{
+    resizeCanvas();
+    loadAuthorization();
+  }
+);
+
+</script>
+
+</body>
+</html>
