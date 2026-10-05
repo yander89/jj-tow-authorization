@@ -1146,7 +1146,7 @@ async function submitAuthorization(){
       vehicle_make:
         value("vehicle_make"),
 
-      vehicle_model:
+            vehicle_model:
         value("vehicle_model"),
 
       vehicle_color:
@@ -1157,6 +1157,33 @@ async function submitAuthorization(){
 
       vehicle_plate:
         value("vehicle_plate"),
+
+      odometer:
+        value("odometer"),
+
+      keys_property:
+        value("keys_property"),
+
+      existing_damage:
+        value("existing_damage"),
+
+      tow_charge:
+        value("tow_charge"),
+
+      storage_charge:
+        value("storage_charge"),
+
+      other_charge:
+        value("other_charge"),
+
+      total_charge:
+        value("total_charge"),
+
+      charge_notes:
+        value("charge_notes"),
+
+      customer_acknowledgment:
+        document.getElementById("customer_acknowledgment")?.checked || false,
 
       authorization_signature:
         signature,
