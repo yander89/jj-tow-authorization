@@ -582,14 +582,13 @@ function value(id){
   return document.getElementById(id)?.value || "";
 }
 
-
 /* ==========================================================
    START NEW TOW
    ========================================================== */
-alert("START NEW TOW BUTTON IS WORKING");
+
 async function startNewTow() {
   try {
-    setMessage("Creating tow authorization...");
+    showStatus("Creating tow authorization...");
 
     const response = await fetch(FUNCTION_URL, {
       method: "POST",
@@ -624,17 +623,15 @@ async function startNewTow() {
     window.location.href = customerLink;
 
   } catch (error) {
-    console.error(error);
+    console.error("START NEW TOW ERROR:", error);
 
-    setMessage(
+    showStatus(
       error.message ||
-      "Something went wrong creating the tow authorization."
+      "Something went wrong creating the tow authorization.",
+      true
     );
   }
 }
-
-  
-
 
 /* ==========================================================
    LOAD EXISTING AUTHORIZATION
