@@ -587,79 +587,53 @@ function value(id){
    START NEW TOW
    ========================================================== */
 
-async function startNewTow(){
+async function startNewTow() {
+  try {
+    setMessage("Creating tow authorization...");
 
-  if(SUPABASE_ANON_KEY.includes("PASTE_")){
-    showStatus(
-      "The Supabase publishable key still needs to be added.",
-      true
-    );
-    return;
-  }
+    const response = await fetch(FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "create"
+      })
+    });
 
-  showStatus("Creating new tow authorization...");
+    const result = await response.json();
 
-  try{
-
-    const response = await fetch(
-      SUPABASE_URL + "/rest/v1/tow_authorizations",
-      {
-        method:"POST",
-        headers:{
-          "apikey":SUPABASE_ANON_KEY,
-          "Authorization":
-            "Bearer " + SUPABASE_ANON_KEY,
-          "Content-Type":"application/json",
-          "Prefer":"return=representation"
-        },
-        body:JSON.stringify({
-          status:"draft"
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if(!response.ok){
+    if (!response.ok) {
       throw new Error(
-        data?.message ||
-        data?.error_description ||
-        "Could not create authorization."
+        result.error || "Could not create tow authorization"
       );
     }
 
-    authorization = data[0];
+    const accessToken = result.access_token;
 
-    accessToken = authorization.access_token;
+    if (!accessToken) {
+      throw new Error("No access token was returned");
+    }
 
-    const link =
+    const customerLink =
       window.location.origin +
       window.location.pathname +
       "?token=" +
       encodeURIComponent(accessToken);
 
-    document.getElementById("customerLink").textContent = link;
+    window.location.href = customerLink;
 
-    document.getElementById("linkScreen")
-      .classList.remove("hidden");
+  } catch (error) {
+    console.error(error);
 
-    document.getElementById("startScreen")
-      .classList.add("hidden");
-
-    document.getElementById("formScreen")
-      .classList.remove("hidden");
-
-    hideStatus();
-
-  }catch(error){
-
-    showStatus(
-      error.message || "Unable to create tow.",
-      true
+    setMessage(
+      error.message ||
+      "Something went wrong creating the tow authorization."
     );
-
   }
 }
+
+  
 
 
 /* ==========================================================
